@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Second Brain v2: building an AI-native second brain</title>
+<meta name="description" content="How one portfolio-career operator runs a working life from a single Obsidian vault operated by Claude agents: the vault, the scheduled tasks, the rules agents share, and how to build your own. Updated November 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Palette drawn from the sambourton.ai mark: ink black, off-white, the green cursor block.
+   Light "human mode" for reading; black is kept for the code islands and the closing band. */
+:root{
+  --paper:#ffffff; --mist:#f3f6f4; --mist-2:#e9eeeb; --line:#dbe2dd; --line-strong:#c3cdc6;
+  --ink:#0a0a0a; --text:#2c332f; --muted:#5f6a64; --ghost:#98a29c;
+  --signal:#00ff88; --forest:#00693e; --signal-wash:#e8faf1;
+  --amber:#7a5200; --amber-wash:#fbf3df; --amber-mark:#e0af68;
+  --term-bg:#0a0a0a; --term-text:#e8e8e8; --term-dim:#8a8a8a; --term-blue:#7aa2f7;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Inter',-apple-system,system-ui,sans-serif;
+  --serif:'Source Serif 4',Charter,'Iowan Old Style',Georgia,serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{margin:0;font-family:var(--sans);font-size:16px;color:var(--text);background:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased;}
+::selection{background:var(--signal);color:var(--ink);}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
+/* Layout */
+.layout{display:flex;}
+.content{flex:1;min-width:0;margin-left:216px;}
+@media(max-width:880px){.content{margin-left:0;}}
+
+/* The cursor block from the "sb" mark */
+.cursor{display:inline-block;width:.4em;height:.74em;background:var(--signal);margin-left:.1em;transform:translateY(.04em);}
+@keyframes blink{50%{opacity:0;}}
+.hero .cursor{animation:blink 1.1s steps(1) 3;}
+@media(prefers-reduced-motion:reduce){.hero .cursor{animation:none;}}
+
+/* Sidebar nav */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:216px;
+  padding:34px 14px 34px 26px;background:var(--mist);
+  border-right:1px solid var(--line);
+  display:flex;flex-direction:column;gap:2px;z-index:40;overflow-y:auto;
+}
+.sidebar-brand{
+  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:1.4px;
+  color:var(--ink);text-transform:uppercase;line-height:1.4;margin-bottom:4px;white-space:nowrap;
+}
+.sidebar-brand .dot,.mobile-bar .mb-title .dot{display:inline-block;width:.5em;height:.95em;background:var(--signal);margin-left:.35em;font-size:inherit;color:transparent;overflow:hidden;vertical-align:-.12em;}
+.sidebar-tag{font-size:12px;color:var(--muted);margin-bottom:24px;}
+.nav-group-label{font-size:11.5px;font-weight:600;color:var(--ghost);margin:20px 0 6px;}
+.nav-item{
+  font-size:14px;color:var(--muted);text-decoration:none;padding:7px 10px;
+  border-left:3px solid transparent;cursor:pointer;line-height:1.3;border-radius:0 6px 6px 0;
+}
+.nav-item:hover{color:var(--ink);background:var(--mist-2);}
+.nav-item.active{color:var(--ink);border-left-color:var(--signal);background:var(--paper);font-weight:600;}
+
+/* mobile top bar */
+.mobile-bar{display:none;}
+@media(max-width:880px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s ease;width:250px;}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(10,10,10,.14);}
+  .mobile-bar{
+    display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;
+    background:var(--paper);border-bottom:1px solid var(--line);padding:14px 20px;
+  }
+  .mobile-bar .mb-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink);}
+  .hamb{background:none;border:1px solid var(--line-strong);border-radius:7px;padding:7px 11px;font-size:15px;cursor:pointer;color:var(--ink);}
+}
+
+/* Hero: light, with one black "machine" card */
+.hero{background:var(--paper);padding:84px 8vw 72px;border-bottom:1px solid var(--line);}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:56px;align-items:center;}
+@media(max-width:1180px){.hero-grid{grid-template-columns:1fr;gap:40px;}}
+.hero-eyebrow{font-family:var(--mono);font-size:13px;color:var(--forest);margin-bottom:22px;}
+.hero h1{margin:0;font-size:clamp(44px,6.2vw,86px);font-weight:800;letter-spacing:-.035em;color:var(--ink);line-height:1.02;}
+.hero .lede{margin:26px 0 0;font-family:var(--serif);font-size:clamp(18px,1.55vw,21px);color:var(--text);max-width:58ch;line-height:1.62;}
+.hero-meta{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap;}
+.hero-stat{display:flex;align-items:baseline;gap:7px;border:1px solid var(--line-strong);border-radius:999px;padding:7px 15px;background:var(--paper);}
+.hero-stat .n{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink);}
+.hero-stat .l{font-size:13.5px;color:var(--muted);}
+.term{background:var(--term-bg);border-radius:14px;padding:20px 22px 22px;font-family:var(--mono);font-size:13px;line-height:1.9;color:var(--term-text);overflow-x:auto;}
+.term .bar{color:var(--term-dim);margin-bottom:8px;}
+.term .f{color:var(--signal);}
+.term .c{color:var(--term-dim);}
+
+/* Sections */
+section{padding:76px 8vw;position:relative;border-bottom:1px solid var(--line);}
+section:nth-of-type(even){background:var(--mist);}
+.section-top{display:none;}
+.slide-label{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--forest);text-transform:lowercase;margin-bottom:12px;}
+.slide-label::before{content:'// ';color:var(--ghost);}
+section h2{margin:0 0 16px;font-size:clamp(30px,3.5vw,46px);font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1.08;}
+section h2 em{color:inherit;font-style:normal;}
+.section-sub{margin:0 0 38px;font-family:var(--serif);font-size:19px;color:var(--text);line-height:1.68;max-width:66ch;}
+section h3.block-h{font-size:17px;font-family:var(--sans);letter-spacing:-.01em;color:var(--ink);margin:46px 0 16px;font-weight:700;}
+p{max-width:72ch;color:var(--text);}
+section p strong{color:var(--ink);font-weight:600;}
+a.inline{color:var(--forest);text-decoration:underline;text-underline-offset:3px;}
+
+/* Cards */
+.grid{display:grid;gap:16px;}
+.grid.c2{grid-template-columns:repeat(2,1fr);}
+.grid.c3{grid-template-columns:repeat(3,1fr);}
+.grid.c4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:1100px){.grid.c4{grid-template-columns:1fr 1fr;}}
+@media(max-width:900px){.grid.c3{grid-template-columns:1fr 1fr;}}
+@media(max-width:620px){.grid.c2,.grid.c3,.grid.c4{grid-template-columns:1fr;}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px;}
+.card .k{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--forest);text-transform:lowercase;}
+.card h3{margin:8px 0 7px;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.card p{margin:0;font-size:14.5px;color:var(--text);line-height:1.6;}
+
+.accent-card{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--signal);border-radius:4px 12px 12px 4px;padding:19px 22px;}
+.accent-card h3{margin:0 0 6px;font-size:16.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.accent-card p{margin:0;font-size:14.5px;color:var(--text);line-height:1.6;}
+
+/* Callouts: green wash by default, amber for cautions */
+.callout{border-radius:12px;padding:20px 24px;margin:28px 0;font-size:15.5px;line-height:1.65;max-width:78ch;background:var(--signal-wash);}
+.callout .ct{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;display:block;}
+.callout .ct::before{content:'';display:inline-block;width:.42em;height:.9em;background:var(--signal);margin-right:.55em;vertical-align:-.1em;}
+.callout p{margin:0;max-width:none;color:var(--text);}
+.callout.red,.callout.orange{background:var(--amber-wash);}
+.callout.red .ct,.callout.orange .ct{color:var(--amber);}
+.callout.red .ct::before,.callout.orange .ct::before{background:var(--amber-mark);}
+
+/* Code / structure blocks: the one place the page goes "machine mode" */
+.code{
+  background:var(--term-bg);border-radius:12px;padding:22px 24px;
+  font-family:var(--mono);font-size:13px;line-height:1.8;color:var(--term-text);
+  overflow-x:auto;margin:22px 0;max-width:100%;
+}
+.code .cm{color:var(--term-dim);}
+.code .hl{color:var(--signal);}
+.code .hl2{color:var(--term-blue);}
+.code .hl3{color:var(--signal);}
+pre{margin:0;}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px;background:var(--paper);}
+table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:560px;}
+th{text-align:left;font-size:13px;color:var(--ink);font-weight:600;padding:13px 16px;background:var(--mist-2);border-bottom:1px solid var(--line);}
+td{padding:13px 16px;border-bottom:1px solid var(--line);color:var(--text);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+td:first-child{color:var(--ink);font-weight:500;}
+td code,p code,li code,.card code,.accent-card code,.step code{font-family:var(--mono);font-size:.86em;background:var(--mist-2);padding:1px 6px;border-radius:4px;color:var(--ink);font-weight:400;}
+
+/* Steps: a real sequence, so the numbers stay */
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--line);}
+.step:last-child{border-bottom:none;}
+.step .num{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);background:var(--signal);min-width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step .body{flex:1;}
+.step h3{margin:3px 0 5px;font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.step p{margin:0;font-size:15px;}
+
+/* Pills / inline lists */
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0;}
+.pill{font-size:13.5px;background:var(--paper);border:1px solid var(--line-strong);border-radius:999px;padding:6px 14px;color:var(--muted);}
+.pill b{color:var(--ink);font-weight:600;}
+
+ul.clean{list-style:none;padding:0;margin:18px 0;max-width:74ch;}
+ul.clean li{padding:10px 0 10px 24px;position:relative;color:var(--text);font-size:15.5px;line-height:1.6;border-bottom:1px solid var(--line);}
+ul.clean li:last-child{border-bottom:none;}
+ul.clean li::before{content:'';position:absolute;left:0;top:1.02em;width:7px;height:13px;background:var(--signal);}
+ul.clean li b{color:var(--ink);}
+
+/* Closing: the mark's own colours */
+.closing{background:var(--ink);padding:92px 8vw;text-align:center;}
+.closing blockquote{margin:0 auto;font-family:var(--serif);font-size:clamp(24px,2.8vw,38px);font-weight:600;color:#f1f1f1;line-height:1.34;max-width:22ch;letter-spacing:-.01em;}
+.closing blockquote em{color:inherit;font-style:normal;}
+.closing .foot{margin-top:40px;font-family:var(--mono);font-size:12.5px;color:#8a8a8a;line-height:2;}
+
+/* Diagrams */
+.diagram{margin:40px 0 0;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;overflow-x:auto;}
+section .diagram{margin:0 0 8px;}
+.diagram svg{display:block;width:100%;height:auto;min-width:860px;}
+.diagram svg text{font-family:var(--sans);fill:var(--text);}
+.diagram svg .h{font-size:18px;font-weight:700;fill:var(--ink);letter-spacing:-.01em;}
+.diagram svg .b{font-size:14.5px;font-weight:600;fill:var(--ink);}
+.diagram svg .b2{font-size:13px;font-weight:600;fill:var(--ink);}
+.diagram svg .s{font-size:12.5px;fill:var(--muted);}
+.diagram svg .m{font-family:var(--mono);font-size:13px;}
+.diagram svg .lab{font-family:var(--mono);font-size:12.5px;fill:var(--forest);}
+
+/* No scroll-reveal: content is simply there */
+.reveal{opacity:1;transform:none;}
+</style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">Second Brain <span style="text-transform:none">v2</span><span class="dot" aria-hidden="true"></span></div>
+  <div class="sidebar-tag">AI-Native System</div>
+  <div class="nav-group-label">The System</div>
+  <a class="nav-item" href="#overview">Overview</a>
+  <a class="nav-item" href="#changed">v1 to v2</a>
+  <a class="nav-item" href="#vault">The Vault</a>
+  <a class="nav-item" href="#automations">Automations</a>
+  <a class="nav-item" href="#rules">The Rules</a>
+  <a class="nav-item" href="#agent">Always-On Agent</a>
+  <div class="nav-group-label">Practice</div>
+  <a class="nav-item" href="#patterns">Working Patterns</a>
+  <a class="nav-item" href="#dashboard">The Dashboard</a>
+  <div class="nav-group-label">For You</div>
+  <a class="nav-item" href="#replicate">Replicate This</a>
+  <a class="nav-item" href="#future">Where It's Going</a>
+</nav>
+
+<div class="mobile-bar">
+  <div class="mb-title">Second Brain <span style="text-transform:none">v2</span><span class="dot" aria-hidden="true"></span></div>
+  <button class="hamb" id="hamb" aria-label="Menu">☰</button>
+</div>
+
+<div class="layout">
+<main class="content">
+
+<!-- Hero -->
+<header class="hero">
+  <div>
+    <div>
+      <div class="hero-eyebrow">// a field note on a personal agentic system, november 2026</div>
+      <h1>Second Brain v2<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="lede">
+        Building an AI-native second brain, five months on. One plain-text vault. Scheduled agents that fill it
+        before you wake. A handful of root logs and rules that let several agents work on it unattended without
+        tripping over each other. This is how a portfolio-career operator runs a working life from one knowledge
+        system, and the patterns you'd reuse to build your own.
+      </p>
+      <div class="hero-meta">
+        <div class="hero-stat"><div class="n">1</div><div class="l">vault</div></div>
+        <div class="hero-stat"><div class="n">5</div><div class="l">root logs agents share</div></div>
+        <div class="hero-stat"><div class="n">11</div><div class="l">scheduled tasks</div></div>
+        <div class="hero-stat"><div class="n">25</div><div class="l">skills</div></div>
+      </div>
+    </div>
+    <figure class="diagram">
+<svg viewBox="0 0 1200 744" role="img" aria-label="The whole system: meetings, email, calendar, clippings, phone capture and notes flow into one vault of plain markdown; agents read and write the same files; briefs, drafts and a dashboard flow out to you; your decisions go back in." xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6a64"/></marker>
+<marker id="fag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00ff88"/></marker>
+<marker id="fai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0a0a0a"/></marker>
+</defs>
+<text x="40.0" y="70.0" class="lab" text-anchor="start" >// what comes in</text>
+<rect x="40" y="90" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="118.0" class="b" text-anchor="middle" >Meetings</text>
+<line x1="250" y1="113" x2="336" y2="113" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="40" y="154" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="182.0" class="b" text-anchor="middle" >Email</text>
+<line x1="250" y1="177" x2="336" y2="177" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="40" y="218" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="246.0" class="b" text-anchor="middle" >Calendar</text>
+<line x1="250" y1="241" x2="336" y2="241" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="40" y="282" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="310.0" class="b" text-anchor="middle" >Web clippings</text>
+<line x1="250" y1="305" x2="336" y2="305" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="40" y="346" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="374.0" class="b" text-anchor="middle" >Phone capture</text>
+<line x1="250" y1="369" x2="336" y2="369" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="40" y="410" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="438.0" class="b" text-anchor="middle" >Your own notes</text>
+<line x1="250" y1="433" x2="336" y2="433" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="340" y="90" width="380" height="380" rx="16" fill="#0a0a0a"/>
+<text x="368.0" y="128.0" class="m" text-anchor="start"  style="fill:#8a8a8a">// the vault: one folder, plain markdown</text>
+<text x="368.0" y="168.0" class="m" text-anchor="start"  style="fill:#00ff88">TASKS.md</text>
+<text x="510.0" y="168.0" class="m" text-anchor="start"  style="fill:#8a8a8a">commitments</text>
+<text x="368.0" y="198.0" class="m" text-anchor="start"  style="fill:#00ff88">NEW.md</text>
+<text x="510.0" y="198.0" class="m" text-anchor="start"  style="fill:#8a8a8a">activity</text>
+<text x="368.0" y="228.0" class="m" text-anchor="start"  style="fill:#00ff88">DECISIONS.md</text>
+<text x="510.0" y="228.0" class="m" text-anchor="start"  style="fill:#8a8a8a">decisions</text>
+<text x="368.0" y="258.0" class="m" text-anchor="start"  style="fill:#00ff88">GOALS.md</text>
+<text x="510.0" y="258.0" class="m" text-anchor="start"  style="fill:#8a8a8a">open loops</text>
+<text x="368.0" y="288.0" class="m" text-anchor="start"  style="fill:#00ff88">ANSWERS.md</text>
+<text x="510.0" y="288.0" class="m" text-anchor="start"  style="fill:#8a8a8a">questions for you</text>
+<line x1="368" y1="326" x2="692" y2="326" stroke="#2a2a2a"/>
+<text x="368.0" y="358.0" class="m" text-anchor="start"  xml:space="preserve" style="fill:#e8e8e8">projects/   people/   meetings/</text>
+<text x="368.0" y="388.0" class="m" text-anchor="start"  xml:space="preserve" style="fill:#e8e8e8">briefs/     emails/   notes/</text>
+<text x="368.0" y="436.0" class="m" text-anchor="start"  style="fill:#7aa2f7">_claude/</text>
+<text x="510.0" y="436.0" class="m" text-anchor="start"  style="fill:#8a8a8a">agent memory</text>
+<text x="810.0" y="70.0" class="lab" text-anchor="start" >// what comes out</text>
+<line x1="720" y1="113" x2="806" y2="113" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="810" y="90" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="118.0" class="b" text-anchor="middle" >Morning brief</text>
+<path d="M1020,113 C1050,113 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="177" x2="806" y2="177" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="810" y="154" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="182.0" class="b" text-anchor="middle" >Meeting prep</text>
+<path d="M1020,177 C1050,177 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="241" x2="806" y2="241" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="810" y="218" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="246.0" class="b" text-anchor="middle" >Inbox view</text>
+<path d="M1020,241 C1050,241 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="305" x2="806" y2="305" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="810" y="282" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="310.0" class="b" text-anchor="middle" >Night shift</text>
+<path d="M1020,305 C1050,305 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="369" x2="806" y2="369" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="810" y="346" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="374.0" class="b" text-anchor="middle" >Drafts for review</text>
+<path d="M1020,369 C1050,369 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="433" x2="806" y2="433" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#fa)"/>
+<rect x="810" y="410" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="438.0" class="b" text-anchor="middle" >Dashboard</text>
+<path d="M1020,433 C1050,433 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<path d="M1052,268 L1061,273 L1052,278 z" fill="#5f6a64"/>
+<circle cx="1112" cy="273" r="50" fill="#0a0a0a"/>
+<text x="1104.0" y="280.0" class="h" text-anchor="middle" style="fill:#fff">You</text>
+<rect x="1126" y="266" width="7" height="15" fill="#00ff88"/>
+<text x="1112.0" y="346.0" class="s" text-anchor="middle" >decide, send,</text>
+<text x="1112.0" y="364.0" class="s" text-anchor="middle" >publish</text>
+<path d="M1112,223 V54 Q1112,40 1098,40 H544 Q530,40 530,54 V82" fill="none" stroke="#00ff88" stroke-width="3" marker-end="url(#fag)"/>
+<rect x="668" y="27" width="300" height="26" fill="#fff"/>
+<text x="818.0" y="45.0" class="b" text-anchor="middle" >your decisions and answers go back in</text>
+<rect x="270" y="512" width="520" height="128" rx="14" fill="#f3f6f4" stroke="#dbe2dd"/>
+<text x="290.0" y="537.0" class="lab" text-anchor="start" >// agents read and write the same files</text>
+<line x1="400" y1="476" x2="400" y2="506" stroke="#0a0a0a" stroke-width="1.5" marker-start="url(#fai)" marker-end="url(#fai)"/>
+<line x1="530" y1="476" x2="530" y2="506" stroke="#0a0a0a" stroke-width="1.5" marker-start="url(#fai)" marker-end="url(#fai)"/>
+<line x1="660" y1="476" x2="660" y2="506" stroke="#0a0a0a" stroke-width="1.5" marker-start="url(#fai)" marker-end="url(#fai)"/>
+<rect x="279" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="338.0" y="582.0" class="b2" text-anchor="middle" >Scheduled tasks</text><text x="338.0" y="600.0" class="s" text-anchor="middle" >overnight</text>
+<rect x="407" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="466.0" y="582.0" class="b2" text-anchor="middle" >Desktop agent</text><text x="466.0" y="600.0" class="s" text-anchor="middle" >at your desk</text>
+<rect x="535" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="594.0" y="582.0" class="b2" text-anchor="middle" >Coding agent</text><text x="594.0" y="600.0" class="s" text-anchor="middle" >at your desk</text>
+<rect x="663" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="722.0" y="582.0" class="b2" text-anchor="middle" >Voice agent</text><text x="722.0" y="600.0" class="s" text-anchor="middle" >briefs only</text>
+<rect x="40" y="676" width="1120" height="50" rx="12" fill="#fbf3df"/>
+<rect x="60" y="693" width="7" height="16" fill="#e0af68"/>
+<text x="80" y="707" class="b" style="fill:#7a5200">The rules<tspan class="s" dx="14" style="fill:#2c332f;font-size:14px">Agents draft, you decide. Nothing is sent, paid for or deleted by an agent.</tspan></text>
+</svg>
+    </figure>
+  </div>
+</header>
+
+<!-- 1. Overview -->
+<section id="overview">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">01 · The Pitch</div>
+  <h2 class="reveal rd1">Five apps, collapsed into <em>one vault</em></h2>
+  <p class="section-sub reveal rd2">
+    A portfolio career (advisory, fractional leadership and angel investing across several work streams)
+    means hundreds of stakeholders, dozens of live threads, and meetings that jump between completely
+    different contexts. The fix wasn't a better app. It was deleting most of them and putting everything
+    in one place an AI could operate.
+  </p>
+
+  <h3 class="block-h reveal">The consolidation</h3>
+  <p class="reveal">
+    Before: notes, tasks, and years of context were scattered across five tools: a chat assistant's project
+    folders, a corporate note app, a personal note app, a dedicated task manager, and assorted others. Everything
+    got exported and imported into one Obsidian vault, filed into archive folders. Then the old apps came off the
+    dock and the phone home screen. What's left is <strong>Obsidian and Claude</strong>.
+  </p>
+
+  <div class="callout coral reveal">
+    <span class="ct">The core idea</span>
+    <p>The "app" is the vault plus a few agents that operate on it. There's no database and no backend,
+    just plain Markdown that's portable, diffable, greppable, and future-proof. Every tool reads and writes
+    the same files.</p>
+  </div>
+
+  <h3 class="block-h reveal">What a typical morning looks like</h3>
+  <p class="reveal">By the time the day starts, the vault already holds:</p>
+  <div class="grid c3" style="margin-top:18px;">
+    <div class="card reveal"><div class="k">~00:00</div><h3>Meeting sync</h3><p>Yesterday's meeting transcripts filed into the right project folder, with every attendee wikilinked.</p></div>
+    <div class="card reveal rd1"><div class="k">~04:00</div><h3>Email gravity</h3><p>One ranked view of inbox pressure: who's waiting, what's urgent, what was flagged, what's safe to ignore.</p></div>
+    <div class="card reveal rd2"><div class="k">~05:00</div><h3>Meeting prep</h3><p>A brief for every meeting today: who's attending, the last notes with them, and open items still in the air.</p></div>
+    <div class="card reveal"><div class="k">~05:30</div><h3>Morning brief</h3><p>A chief-of-staff page: today's focus, replies owed, what moved since yesterday, what's waiting on someone else.</p></div>
+    <div class="card reveal rd1"><div class="k">~06:00</div><h3>Night shift</h3><p>A divergent overnight read. It connects threads across the vault and asks a few uncomfortable questions. No task lists.</p></div>
+    <div class="card reveal rd2"><div class="k">Home page</div><h3>One dashboard</h3><p>A single HTML file at the vault root, set as the browser home page, that shows all of the above.</p></div>
+  </div>
+
+  <div class="callout blue reveal" style="margin-top:30px;">
+    <span class="ct">Surfaces split by job, one brain</span>
+    <p>The work is split by <strong>job, not by data</strong>. An always-on machine owns the scheduled work,
+    the backups and remote sessions. A laptop is for interactive sessions, in a desktop agent and a coding agent.
+    A phone captures tasks and starts remote sessions on the always-on machine. All of them share the one synced vault.</p>
+  </div>
+</section>
+
+<!-- 2. Since June -->
+<section id="changed">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">02 · v1 to v2</div>
+  <h2 class="reveal rd1">What changed from v1 to <em>v2</em></h2>
+  <p class="section-sub reveal rd2">
+    Version 1 of this page was written in June 2026. The bottom layer is the same. Most of what sits
+    on top of it has been rebuilt after running it every day. If you read the earlier version, this is the diff.
+  </p>
+
+  <div class="tbl-wrap reveal">
+    <table>
+      <thead><tr><th>Area</th><th>v1 (June)</th><th>v2 (now)</th></tr></thead>
+      <tbody>
+        <tr><td>Coordination</td><td>Three root files: tasks, activity log, decisions.</td><td>Five. A goals file and a questions queue were added, plus a written delegation policy.</td></tr>
+        <tr><td>Always-on agent</td><td>Read the whole work vault; voice and chat from a phone.</td><td>Sees the briefs folder only and reads briefs aloud. Remote work goes through a full agent session on the always-on machine.</td></tr>
+        <tr><td>Daily surface</td><td>A daily note that transcluded the briefs.</td><td>No daily notes. The dashboard is the home page.</td></tr>
+        <tr><td>Briefs</td><td>A tasks brief and an operational night shift.</td><td>A morning brief that checks claims against sent mail, and a night shift that only dreams.</td></tr>
+        <tr><td>Reliability</td><td>"Check the date on the brief."</td><td>Drift checks, a sync health check, sync jobs that run from outside the vault, a weekly hygiene run.</td></tr>
+        <tr><td>Instructions</td><td>One memory file that kept growing.</td><td>A short every-session file with a load-on-demand table. One source for style, one for each skill.</td></tr>
+        <tr><td>Skills</td><td>About ten.</td><td>25, including a voice pass, method skills and a publishing chain.</td></tr>
+        <tr><td>Publishing</td><td>Nothing published by an agent.</td><td>Still manual, with one named exception: a monthly post that ships behind a fact-check gate.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="block-h reveal">Three things learned the hard way</h3>
+  <div class="grid c3">
+    <div class="card reveal"><div class="k">SILENCE</div><h3>It fails without telling you</h3><p>The backup sync froze for six days behind a stale lock file and logged thousands of errors. Nothing raised an alert. A scheduled system needs a heartbeat before it needs more features.</p></div>
+    <div class="card reveal rd1"><div class="k">REVIEW</div><h3>The click is the bottleneck</h3><p>Agents drafted faster than their output could be reviewed. A dozen drafted replies sat unsent for two weeks. More drafts made it worse; batching decisions made it better.</p></div>
+    <div class="card reveal rd2"><div class="k">ROT</div><h3>Instructions drift</h3><p>The same rule ended up in several files and the copies disagreed. Instruction files need one owner each and a script that checks the copies.</p></div>
+  </div>
+</section>
+
+<!-- 3. The Vault -->
+<section id="vault">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">03 · The Store</div>
+  <h2 class="reveal rd1">The vault as <em>second brain</em></h2>
+  <p class="section-sub reveal rd2">
+    Everything (notes, meetings, people, tasks, project context, even the AI's own memory) lives in one
+    Obsidian vault of plain Markdown. This is the most shareable, least sensitive layer, and the foundation
+    everything else assumes.
+  </p>
+
+  <h3 class="block-h reveal">The folder skeleton</h3>
+  <div class="code reveal"><pre>VAULT/
+  TASKS.md            <span class="cm">commitments: one file, sectioned by ### area</span>
+  NEW.md              <span class="cm">activity: shared session log, every agent writes here</span>
+  DECISIONS.md        <span class="cm">decisions and current priorities; Active entries are current truth</span>
+  GOALS.md            <span class="cm">open loops agents advance one increment at a time</span>
+  ANSWERS.md          <span class="cm">the one queue for agent questions, each with a default</span>
+  AGENTS.md           <span class="cm">pointer file for any agent that isn't the main one</span>
+  dashboard.html      <span class="cm">single-file home page over the vault</span>
+  <span class="hl">briefs/</span>            generated outputs from scheduled tasks
+  <span class="hl">agent-drafts/</span>      agent output waiting for review
+  <span class="hl">projects/</span>          one folder per work stream (each with meetings/, emails/, _staging/)
+  <span class="hl">meetings/</span>          only uncategorised and external calls
+  <span class="hl">emails/</span>            labelled emails filed as notes, with attachments
+  <span class="hl">people/</span>            one page per person: your CRM
+  <span class="hl">notes/</span>             everything thematic (tech, ideas, learning, talks)
+  <span class="hl">clippings/</span>         web saves  ·  <span class="hl">attachments/</span>
+  <span class="hl">shared/</span>            skills and scheduled-task prompts: the single source
+  <span class="hl">scripts/</span>           sync, health and drift checks
+  <span class="hl">_archive/</span>          dated archives and monthly log rollups
+  <span class="hl">_review-for-deletion/</span>  where agents put things instead of deleting them
+  <span class="hl2">_claude/</span>           agent context and memory (not for human use)</pre></div>
+
+  <h3 class="block-h reveal">The design decisions that make it work</h3>
+  <div class="grid c2">
+    <div class="accent-card reveal"><h3>People as pages</h3><p>Every person gets a page in <code>people/</code> with YAML frontmatter (org, role, aliases). Meeting notes wikilink attendees like <code>[[Jane Smith]]</code>. Obsidian's backlinks then give you a free CRM: open anyone's page and see every meeting and note they appear in, with zero upkeep. This is still the highest-value convention in the system.</p></div>
+    <div class="accent-card purple reveal rd1"><h3>Dataview for live queries</h3><p>Project hubs don't maintain meeting lists by hand. They run queries like <code>LIST FROM "projects/x/meetings" SORT file.name DESC LIMIT 15</code> that update themselves. People pages use <code>WHERE contains(file.outlinks, this.file.link)</code> to list every backlink.</p></div>
+    <div class="accent-card blue reveal"><h3>Briefs are files, the dashboard is the view</h3><p>Scheduled tasks write standalone files to <code>briefs/</code>. Nothing transcludes them any more. The dashboard reads them straight off disk, so a task only has to write one file and the view can change without touching the tasks.</p></div>
+    <div class="accent-card green reveal rd1"><h3>One task file</h3><p>No monthly pages, no nested system. A single <code>TASKS.md</code> at the root, sectioned by <code>###</code> area, plus <code>## Waiting On</code> and <code>## Recently Completed</code>. The section list follows current work and is never padded to match an old list. Flat and thumb-typeable, so it can be edited from a phone.</p></div>
+    <div class="accent-card orange reveal"><h3>Meetings and emails live with their project</h3><p>Each project folder has its own <code>meetings/</code> and <code>emails/</code> subfolders, so a work stream's hub, documents and correspondence stay together. Only uncategorised or external calls go in the root <code>meetings/</code>.</p></div>
+    <div class="accent-card red reveal rd1"><h3>Agent memory is separate</h3><p>The <code>_claude/</code> folder holds structured context the AI reads at session start: people profiles, project context, a glossary. It's deliberately <em>separate</em> from the human-facing <code>people/</code> and <code>projects/</code> pages. Don't merge them.</p></div>
+  </div>
+
+  <h3 class="block-h reveal">Two-tier AI memory, kept on a diet</h3>
+  <p class="reveal">
+    Agents don't remember across sessions, so memory is files. A short file read every session, and the detail it points to:
+  </p>
+  <div class="code reveal"><pre>_claude/
+  <span class="hl">CLAUDE.md</span>            <span class="cm">every-session rules only, with a load-on-demand table at the bottom</span>
+  memory/
+    context/           <span class="cm">operating setup, vault structure, archive safety, voice</span>
+    people/            <span class="cm">deeper profiles by domain (beyond the CRM pages)</span>
+    projects/          <span class="cm">per-project context</span>
+    glossary.md        <span class="cm">acronyms, nicknames, codenames the agent must decode</span></pre></div>
+  <p class="reveal">
+    The every-session file grew to nearly 5,000 words and was cut to about 1,400. The test for a line staying in it:
+    does every session need this? Everything else moves to a topic file and gets one row in the table
+    ("need X, read Y"). The glossary is what lets the AI understand shorthand like a colleague would.
+  </p>
+
+  <h3 class="block-h reveal">Plugins doing the heavy lifting</h3>
+  <div class="pills reveal">
+    <span class="pill"><b>Dataview</b> · live queries</span>
+    <span class="pill"><b>Web Clipper</b> · article capture</span>
+    <span class="pill"><b>Obsidian Sync</b> · cross-device</span>
+    <span class="pill"><b>Mobile app</b> · task capture on the go</span>
+  </div>
+  <p class="reveal" style="margin-top:14px;">Daily notes and their template plugin were dropped when the dashboard became the home page.</p>
+</section>
+
+<!-- 4. Automations -->
+<section id="automations">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">04 · The Engine</div>
+  <h2 class="reveal rd1">Automations that run <em>while you sleep</em></h2>
+  <p class="section-sub reveal rd2">
+    Claude Cowork is a desktop agent that can read and write the vault folder and run tasks on a schedule.
+    Each scheduled task is a self-contained prompt that writes one file. Daily briefs overwrite a rolling
+    file in <code>briefs/</code>; the dashboard reads them. Most of the system's value still lands here.
+  </p>
+
+  <div class="tbl-wrap reveal">
+    <table>
+      <thead><tr><th>Task</th><th>When</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>meeting-sync</code></td><td>~midnight</td><td>Files yesterday's meeting transcripts into the right project folder, wikilinking attendees and creating stub pages for new people. Dedupes via a state file.</td></tr>
+        <tr><td><code>email-gravity</code></td><td>~04:00</td><td>One ranked view of inbox pressure across every linked account. Reads only the priority split of each inbox. Sweeps incrementally via a state file.</td></tr>
+        <tr><td><code>periodic-digest</code></td><td>~04:30</td><td>An append-only, de-duplicated inventory of a recurring inbound stream (a running index, not a rolling file).</td></tr>
+        <tr><td><code>meeting-prep</code></td><td>~05:00</td><td>A prep brief for each of today's meetings: attendee context, last notes, open items.</td></tr>
+        <tr><td><code>morning-brief</code></td><td>~05:30</td><td>The chief-of-staff page: focus, meetings, replies owed, what moved since yesterday (checked against sent mail and chat), work in progress, waiting on, parked. Anything it can't verify is named once, not nagged.</td></tr>
+        <tr><td><code>night-shift</code></td><td>~06:00</td><td>Dream only. A random deep sample of the vault plus your own recent words as input, and a ledger that bans it from repeating a move, a theme or a note.</td></tr>
+        <tr><td><code>ai-brief</code></td><td>~06:30</td><td>A daily read of the field, written to a rolling file with a dated archive copy. A weekly synthesis is built on demand from the last seven archives.</td></tr>
+        <tr><td><code>capture-and-file</code></td><td>hourly, daytime</td><td>Starred emails become tasks. Emails given a "vault" label are filed as Markdown notes, with attachments, into the right project's <code>emails/</code> folder.</td></tr>
+        <tr><td><code>vault-hygiene</code></td><td>weekly</td><td>Applies safe, reversible clean-up and proposes the rest in a report. Never deletes; audits inbound links before moving anything.</td></tr>
+        <tr><td><code>monthly-post</code></td><td>1st of month</td><td>Runs three research skills in parallel, fact-checks the result, writes a public post. The one task allowed to publish, and only if every failed check has been fixed.</td></tr>
+        <tr><td><code>monthly-ledger</code></td><td>1st of month</td><td>Rebuilds a month of work records from calendars, sent mail, meeting notes and session logs, with an evidence line per entry.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="block-h reveal">The lessons baked into this model</h3>
+  <div class="grid c3">
+    <div class="card reveal"><div class="k">CONSOLIDATE</div><h3>Fewer, self-contained tasks</h3><p>An earlier version had separate triage, stale-reply, action-extractor, Monday and Friday jobs. They were collapsed into one inbox sweep and one brief. A few self-contained tasks beat many brittle chained ones.</p></div>
+    <div class="card reveal rd1"><div class="k">SILENT FAILURE</div><h3>Rolling files fail quietly</h3><p>A rolling output overwrites in place, so a dead pipeline just leaves yesterday's file with no error. Every brief prints its own date. Check the date, not the file's presence.</p></div>
+    <div class="card reveal rd2"><div class="k">INCREMENTAL</div><h3>State files for sweeps</h3><p>Tasks that sweep an inbox keep a small JSON state file so each run only processes what's new, with per-item dedupe as the safety net.</p></div>
+    <div class="card reveal"><div class="k">REVIEW</div><h3>Read your own briefs back</h3><p>After a few months, 66 past briefs were reviewed in one pass. The overnight read had used one template for a month. A "did not move" list was built on absence of evidence, and on one day two of its five items were wrong. Both were redesigned.</p></div>
+    <div class="card reveal rd1"><div class="k">NARROW</div><h3>Cut the input, not just the output</h3><p>The inbox sweep's needs-reply list grew past 500 items and stopped being read. Pointing the sweep at the priority split only took it from 567 to 71 in one run.</p></div>
+    <div class="card reveal rd2"><div class="k">MODELS</div><h3>Pins get retired</h3><p>Tasks pointed at a specific model failed on every run once that model was withdrawn, with no visible error. Inherit the default unless a task has a reason to pin, and check the pins when a model is retired.</p></div>
+  </div>
+
+  <div class="callout orange reveal">
+    <span class="ct">Model choice</span>
+    <p>One more concrete lesson: a different model family was trialled for "cognitive diversity" but its max
+    output-token limit was far lower and it errored on real, tool-heavy runs. <strong>Check a model's max output
+    tokens against your actual workloads before committing.</strong></p>
+  </div>
+</section>
+
+<!-- 5. The Rules -->
+<section id="rules">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">05 · The Rules</div>
+  <h2 class="reveal rd1">How several agents share <em>one vault</em></h2>
+  <p class="section-sub reveal rd2">
+    This section didn't exist in June. Once a desktop agent, a coding agent, scheduled tasks and a voice agent all
+    write to the same folder, across two machines, coordination becomes most of the design. The answer is five
+    plain files at the vault root and one written policy.
+  </p>
+
+  <h3 class="block-h reveal">Five root logs</h3>
+  <div class="tbl-wrap reveal">
+    <table>
+      <thead><tr><th>File</th><th>Holds</th><th>The rule that makes it work</th></tr></thead>
+      <tbody>
+        <tr><td><code>TASKS.md</code></td><td>Commitments</td><td>One file. Completed items move to a dated "recently completed" block. Agents add tasks; they don't restructure the file.</td></tr>
+        <tr><td><code>NEW.md</code></td><td>Activity</td><td>One terse entry per session that changes the vault, newest first, tagged with the surface that wrote it. Routine brief regenerations are not logged. Old entries roll into monthly archives.</td></tr>
+        <tr><td><code>DECISIONS.md</code></td><td>Decisions and current priorities</td><td>Entries marked Active are current truth and outrank older notes. A reversed decision is marked Superseded and linked to its replacement, never deleted.</td></tr>
+        <tr><td><code>GOALS.md</code></td><td>Open loops</td><td>Each goal names its outcome, a done-condition, the increments an agent may run, and hard brakes. An agent with spare capacity runs exactly one increment and logs proof.</td></tr>
+        <tr><td><code>ANSWERS.md</code></td><td>Questions for the human</td><td>The only place an agent may ask. One numbered line, a default with a checkbox, a slot to override. Questions never block the work. Answered items are applied, then archived.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout green reveal">
+    <span class="ct">Why the questions queue matters most</span>
+    <p>Before it existed, questions were scattered across run reports and went unanswered. With every question in
+    one file, each with a default that can be ticked, the first batch of 71 was ruled in a single sitting. The
+    dashboard now shows the queue as a "waiting on you" card and writes the answers back to the file.</p>
+  </div>
+
+  <h3 class="block-h reveal">The delegation policy</h3>
+  <p class="reveal">
+    Eleven standing rules for what an agent may do without asking. It lives in the every-session memory file and
+    binds every surface. Changing a rule takes a human edit or a dated decision entry, never an agent's judgment call.
+  </p>
+  <div class="tbl-wrap reveal">
+    <table>
+      <thead><tr><th>Area</th><th>Rule</th></tr></thead>
+      <tbody>
+        <tr><td>Email, archiving</td><td>Agents may archive noise-class mail only (marketing, newsletters, no-reply notifications with no action).</td></tr>
+        <tr><td>Email, sending</td><td>Never. Drafts only, including one-line acknowledgements.</td></tr>
+        <tr><td>Chasers</td><td>No standing chaser loop. A chaser is drafted only when asked for.</td></tr>
+        <tr><td>Payments</td><td>Never. Banking, invoices, transfers and government portals are human-only.</td></tr>
+        <tr><td>Subscriptions</td><td>Flag anything unused for 60 days, with cost and last-use evidence. Cancelling is the human's click.</td></tr>
+        <tr><td>Paid tools and APIs</td><td>Per-item approval, a hard spending cap on every account, credentials set up with the human present.</td></tr>
+        <tr><td>Outreach</td><td>Every inbound request surfaces. Nothing is auto-declined. Introductions are double opt-in.</td></tr>
+        <tr><td>Scheduling</td><td>Propose slots from free time only, respect the meeting-free days. Accepting is the human's tick.</td></tr>
+        <tr><td>Vault, auto-execute</td><td>Clippings triage, quarantining dead stubs, brief regeneration, dashboard rebuilds, meeting routing.</td></tr>
+        <tr><td>Vault, recommend-only</td><td>Promotions out of staging, archives, renames, structure changes, and any delete.</td></tr>
+        <tr><td>Publishing</td><td>Manual, every time, with one named exception recorded as a dated decision.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid c2" style="margin-top:26px;">
+    <div class="accent-card red reveal"><h3>Hard brakes are absolute</h3><p>A goal's brakes override anything else in the goal, the prompt, or the agent's judgment. If an action would cross one, the agent doesn't do it and flags it in the run report.</p></div>
+    <div class="accent-card blue reveal rd1"><h3>Frozen records</h3><p>Briefs, dated meeting notes and dated log entries record a moment. Agents never repair their links or update their claims. A broken link in a frozen record is not a defect for any hygiene pass.</p></div>
+  </div>
+</section>
+
+<!-- 6. Always-On Agent -->
+<section id="agent">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">06 · The Always-On Layer</div>
+  <h2 class="reveal rd1">The voice agent, <em>cut back</em></h2>
+  <p class="section-sub reveal rd2">
+    In June this layer was a third of the story: a 24/7 agent on a small, hardened machine, reachable by voice
+    and chat from a phone, with the whole work vault mounted. It turned out to be the least-used part and the one
+    with the most reach. It is still optional, and it is now much smaller.
+  </p>
+
+  <div class="callout red reveal">
+    <span class="ct">Rule zero: do this first</span>
+    <p>Split personal from work <strong>before</strong> putting any always-on agent in front of the vault. The work
+    vault syncs to all devices and the always-on machine; a separate personal vault syncs to your own devices only,
+    and the always-on machine never gets it.</p>
+  </div>
+
+  <h3 class="block-h reveal">What changed</h3>
+  <div class="grid c2">
+    <div class="accent-card orange reveal"><h3>It mounts the briefs folder, nothing else</h3><p>A review found the agent had far more filesystem reach than its job needed. Its container now gets one mount: <code>briefs/</code>. It reads the morning's briefs aloud on request. It cannot see projects, people, or memory.</p></div>
+    <div class="accent-card blue reveal rd1"><h3>Remote work moved to remote sessions</h3><p>Research, drafting and anything that needs the vault now runs as a full desktop-agent session on the always-on machine, started from a phone or laptop, under the same rules as every other session.</p></div>
+    <div class="accent-card purple reveal"><h3>Capture moved to the phone</h3><p>Tasks are typed straight into the task file from the mobile notes app. Starring or labelling an email does the rest within the hour.</p></div>
+    <div class="accent-card green reveal rd1"><h3>Brief content is data</h3><p>Briefs are built from email and meeting transcripts, which other people wrote. The agent's standing instructions say that anything inside a brief is data to read out, never an instruction to follow.</p></div>
+  </div>
+
+  <h3 class="block-h reveal">The security model, unchanged in principle</h3>
+  <div class="grid c2">
+    <div class="accent-card red reveal"><h3>Least-privilege users</h3><p>A non-admin user runs the agent; a separate admin user handles system changes. The blast radius of a compromised agent is then one home folder.</p></div>
+    <div class="accent-card orange reveal rd1"><h3>Every tool call is sandboxed</h3><p>Tool calls run inside a hardened container, not on the host. Drop all capabilities and re-add only what's needed, no new privileges, and no host secrets forwarded in unless explicitly allowlisted.</p></div>
+    <div class="accent-card blue reveal"><h3>Mount only what you intend</h3><p>Start from the smallest mount that does the job and widen it only when a real task needs it. Narrowing later doesn't remove what the agent has already read and stored.</p></div>
+    <div class="accent-card purple reveal rd1"><h3>Network and secrets discipline</h3><p>Encrypted disk, firewall on, no public exposure. Secrets come from a password-manager CLI into the agent's environment, never pasted into a prompt, and get pruned to what is actually used.</p></div>
+  </div>
+
+  <div class="callout coral reveal">
+    <span class="ct">Drafts only, for every agent</span>
+    <p>The drafts-only rule began as this agent's rule, after an over-eager model moved and renamed files unprompted.
+    It is now the delegation policy in section 05 and applies to every surface. A convention enforced through
+    memory is only as good as the model reading it, which is why the mount, not the instruction, is the real boundary here.</p>
+  </div>
+</section>
+
+<!-- 7. Working Patterns -->
+<section id="patterns">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">07 · Practice</div>
+  <h2 class="reveal rd1">The working patterns that <em>compound</em></h2>
+  <p class="section-sub reveal rd2">
+    A few conventions, written once into the AI's memory so every session obeys them. These are the difference
+    between an AI that helps occasionally and one that operates the vault reliably.
+  </p>
+
+  <div class="grid c2">
+    <div class="accent-card reveal"><h3>The staging convention</h3><p>New AI-generated files land in a <code>_staging/</code> subfolder first, never straight into a live project folder. Edits to existing files happen in place. You review, then promote the keepers.</p></div>
+    <div class="accent-card blue reveal rd1"><h3>Never delete, quarantine</h3><p>Agents never delete vault content. They move it to <code>_review-for-deletion/</code> with the filename preserved. The human empties that folder, and that deletion is final: agents then repair the links that pointed at it, they don't restore from git.</p></div>
+    <div class="accent-card green reveal"><h3>Archive safety</h3><p>Last-modified date is <em>not</em> a staleness signal. Reference notes get linked, not edited, so they look old while being load-bearing. Audit inbound links before archiving anything, and repoint every link whose target moves. Links into the archive are fine; the only defect is a link that doesn't resolve.</p></div>
+    <div class="accent-card purple reveal rd1"><h3>Context lives in the logs</h3><p>Sessions don't share memory. What carries between them is the decisions log, the goals file and the session log, read at the start of every session. Per-project handoff notes are no longer kept.</p></div>
+    <div class="accent-card orange reveal"><h3>One source per instruction</h3><p>Style rules live in one file that the others copy verbatim. Each skill lives in one folder, and every other location is a link to it. Scripts check for drift between copies, and between what's in the vault and what's deployed.</p></div>
+    <div class="accent-card red reveal rd1"><h3>Sync from outside the vault</h3><p>The vault backs up three ways: live sync, a versioned git push every few minutes, and a passive cloud mirror. The scripts that do the git push run from copies installed outside the vault, because agents can write inside it. A health check watches for three things: a failed push, commits piling up unpushed, and the job not running at all. It prints nothing when healthy.</p></div>
+  </div>
+
+  <div class="callout orange reveal">
+    <span class="ct">Protect the review step</span>
+    <p>Drafting is cheap and review isn't. Any new automation that produces more prose to read makes the system
+    worse unless it also removes a decision. The patterns that helped were all batching: one questions queue,
+    one "waiting on you" card, one sitting.</p>
+  </div>
+
+  <h3 class="block-h reveal">Custom skills as reusable playbooks</h3>
+  <p class="reveal">
+    Skills are instruction sets the AI loads when a trigger phrase fires: brand guidelines, a document format,
+    an analysis playbook. Each is a folder with a <code>SKILL.md</code> and an optional <code>references/</code>
+    folder of worked examples. Write one once you've done the task by hand a couple of times and know the pattern
+    you want. There are 25 now. The ones that changed how the vault is used:
+  </p>
+  <div class="grid c3">
+    <div class="card reveal"><div class="k">PROMOTE</div><h3>/ideate</h3><p>Scans recent meetings, notes and staging folders for ideas worth their own page, and graduates each into a standalone note with an evidence trail.</p></div>
+    <div class="card reveal rd1"><div class="k">FILTER</div><h3>/crit</h3><p>The counterweight. Kills the weak ideas, challenges assumptions, names the few threads worth pulling. Run the two as a pair.</p></div>
+    <div class="card reveal rd2"><div class="k">RECORD</div><h3>/decision</h3><p>Captures a firm decision or a change of priority into the decisions log, so every other agent reads the same current truth.</p></div>
+    <div class="card reveal"><div class="k">VOICE</div><h3>Voice pass</h3><p>Rewrites an AI-drafted document into the owner's own voice, working from verbatim examples of their writing, with a hard gate that no fact, number or name changes.</p></div>
+    <div class="card reveal rd1"><div class="k">EXPLAIN</div><h3>Visual explainer</h3><p>Turns a memo into a picture-led HTML page. Chained after the voice pass and before a brand skill, it's the standard route from a draft to something shareable.</p></div>
+    <div class="card reveal rd2"><div class="k">REVIEW</div><h3>/coach-me</h3><p>Reads a week of vault activity and writes a short coaching brief on how the operator is working, not on the ideas.</p></div>
+  </div>
+</section>
+
+<!-- 8. The Dashboard -->
+<section id="dashboard">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">08 · The Surface</div>
+  <h2 class="reveal rd1">One HTML file that <em>is the home page</em></h2>
+  <p class="section-sub reveal rd2">
+    A single self-contained <code>dashboard.html</code> at the vault root that reads, and writes, vault files directly
+    in the browser via the File System Access API. No server, no build step. It replaced the daily note and is set
+    as the browser home page.
+  </p>
+
+  <div class="grid c4">
+    <div class="card reveal"><div class="k">TAB</div><h3>Home</h3><p>Morning brief first, then a "waiting on you" card of open questions that can be answered in place, meeting prep, today's focus from the task file, the top of the inbox view, and the night shift folded away.</p></div>
+    <div class="card reveal rd1"><div class="k">TAB</div><h3>Tasks</h3><p>Parses the task file by <code>###</code> section. Board view with drag-drop between sections, list view, checkboxes that toggle completion.</p></div>
+    <div class="card reveal rd2"><div class="k">TAB</div><h3>Goals</h3><p>One card per goal with its last logged increment, plus current priorities and waiting-on items from the decisions log.</p></div>
+    <div class="card reveal rd3"><div class="k">TAB</div><h3>People</h3><p>A searchable CRM over the <code>people/</code> folder. Grid and table views, click-to-edit fields read from frontmatter.</p></div>
+  </div>
+  <div class="grid c4" style="margin-top:16px;">
+    <div class="card reveal"><div class="k">TAB</div><h3>Briefs</h3><p>Every rolling brief, driven by one list of sources. Older briefs load on open.</p></div>
+    <div class="card reveal rd1"><div class="k">TAB</div><h3>AI</h3><p>The daily read of the field, the weekly synthesis, and the latest monthly radars.</p></div>
+    <div class="card reveal rd2"><div class="k">TAB</div><h3>Ideas</h3><p>The ideas index as cards grouped by theme: the output of <code>/ideate</code>, surfaced where it gets seen.</p></div>
+    <div class="card reveal rd3"><div class="k">TAB</div><h3>Memory</h3><p>Browse and edit the <code>_claude/</code> memory files directly, to see what the AI "knows" and correct it.</p></div>
+  </div>
+
+  <div class="callout purple reveal">
+    <span class="ct">Why a page and not a note</span>
+    <p>The dashboard keys off file paths and Markdown conventions, so it works on any vault that follows the same
+    structure. It can write back (tick a task, accept a default answer), which a transcluding note can't. The vault
+    handle is persisted in the browser, every edit autosaves, and it re-reads the briefs when the tab regains focus.</p>
+  </div>
+</section>
+
+<!-- 9. Replicate -->
+<section id="replicate">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">09 · Build Your Own</div>
+  <h2 class="reveal rd1">Replicate this in <em>three phases</em></h2>
+  <p class="section-sub reveal rd2">
+    Phases 1 and 2 deliver most of the value. You can stop after Phase 2 and have a working AI-native second brain.
+    Phase 3 is optional. Build phase by phase; don't begin one until the previous one verifies.
+  </p>
+
+  <figure class="diagram">
+<svg viewBox="0 0 1200 760" role="img" aria-label="Five layers, built from the bottom up: the vault, five root logs, the rules, the agents, and what you see." xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="la" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6a64"/></marker>
+<marker id="lag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00ff88"/></marker>
+<marker id="lai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0a0a0a"/></marker>
+</defs>
+<polygon points="100,628 330,702 330,726 100,652" fill="#000" stroke="#0a0a0a"/><polygon points="330,702 560,628 560,652 330,726" fill="#1d1d1d" stroke="#0a0a0a"/><polygon points="330,554 560,628 330,702 100,628" fill="#0a0a0a" stroke="#0a0a0a"/>
+<polygon points="330.0,574.7 369.1,587.3 330.0,599.9 290.9,587.3" fill="none" stroke="#4a4a4a" />
+<polygon points="266.8,595.1 305.9,607.6 266.8,620.2 227.7,607.6" fill="none" stroke="#4a4a4a" />
+<polygon points="203.5,615.4 242.6,628.0 203.5,640.6 164.4,628.0" fill="none" stroke="#4a4a4a" />
+<polygon points="393.2,595.1 432.4,607.6 393.2,620.2 354.1,607.6" fill="none" stroke="#4a4a4a" />
+<polygon points="330.0,615.4 369.1,628.0 330.0,640.6 290.9,628.0" fill="none" stroke="#4a4a4a" />
+<polygon points="266.8,635.8 305.9,648.4 266.8,660.9 227.7,648.4" fill="none" stroke="#4a4a4a" />
+<polygon points="456.5,615.4 495.6,628.0 456.5,640.6 417.4,628.0" fill="none" stroke="#4a4a4a" />
+<polygon points="393.2,635.8 432.4,648.4 393.2,660.9 354.1,648.4" fill="none" stroke="#4a4a4a" />
+<polygon points="330.0,656.1 369.1,668.7 330.0,681.3 290.9,668.7" fill="none" stroke="#4a4a4a" />
+<circle cx="560" cy="628" r="4" fill="#0a0a0a"/><line x1="560" y1="628" x2="628" y2="628" stroke="#0a0a0a" stroke-width="1.2"/>
+<text x="644.0" y="616.0" class="h" text-anchor="start" >The vault</text>
+<text x="644.0" y="638.0" class="s" text-anchor="start" style="font-size:13.5px">Plain markdown in one folder: projects, people, meetings,</text>
+<text x="644.0" y="657.0" class="s" text-anchor="start" style="font-size:13.5px">notes. Every tool reads and writes the same files.</text>
+<polygon points="100,512 330,586 330,610 100,536" fill="#e9eeeb" stroke="#c3cdc6"/><polygon points="330,586 560,512 560,536 330,610" fill="#dfe6e1" stroke="#c3cdc6"/><polygon points="330,438 560,512 330,586 100,512" fill="#ffffff" stroke="#c3cdc6"/>
+<polygon points="256.4,479.8 282.8,488.3 256.4,496.8 229.9,488.3" fill="#00ff88" stroke="none" />
+<polygon points="293.2,491.7 319.6,500.2 293.2,508.7 266.8,500.2" fill="#00ff88" stroke="none" />
+<polygon points="330.0,503.5 356.4,512.0 330.0,520.5 303.6,512.0" fill="#00ff88" stroke="none" />
+<polygon points="366.8,515.3 393.2,523.8 366.8,532.4 340.4,523.8" fill="#00ff88" stroke="none" />
+<polygon points="403.6,527.2 430.1,535.7 403.6,544.2 377.2,535.7" fill="#00ff88" stroke="none" />
+<circle cx="560" cy="512" r="4" fill="#0a0a0a"/><line x1="560" y1="512" x2="628" y2="512" stroke="#0a0a0a" stroke-width="1.2"/>
+<text x="644.0" y="500.0" class="h" text-anchor="start" >Five root logs</text>
+<text x="644.0" y="522.0" class="s" text-anchor="start" style="font-size:13.5px">Tasks, activity, decisions, goals, questions.</text>
+<text x="644.0" y="541.0" class="s" text-anchor="start" style="font-size:13.5px">How each agent sees what the others did.</text>
+<polygon points="100,396 330,470 330,494 100,420" fill="#f0e2b6" stroke="#e0af68"/><polygon points="330,470 560,396 560,420 330,494" fill="#e9d69f" stroke="#e0af68"/><polygon points="330,322 560,396 330,470 100,396" fill="#fbf3df" stroke="#e0af68"/>
+<polygon points="330.0,342.7 495.6,396.0 330.0,449.3 164.4,396.0" fill="none" stroke="#e0af68" stroke-dasharray="7 5" stroke-width="2"/>
+<circle cx="560" cy="396" r="4" fill="#0a0a0a"/><line x1="560" y1="396" x2="628" y2="396" stroke="#0a0a0a" stroke-width="1.2"/>
+<text x="644.0" y="384.0" class="h" text-anchor="start" >The rules</text>
+<text x="644.0" y="406.0" class="s" text-anchor="start" style="font-size:13.5px">A delegation policy: agents draft, you decide.</text>
+<text x="644.0" y="425.0" class="s" text-anchor="start" style="font-size:13.5px">Staging first, never delete, hard brakes on every goal.</text>
+<polygon points="100,280 330,354 330,378 100,304" fill="#e9eeeb" stroke="#c3cdc6"/><polygon points="330,354 560,280 560,304 330,378" fill="#dde5df" stroke="#c3cdc6"/><polygon points="330,206 560,280 330,354 100,280" fill="#f3f6f4" stroke="#c3cdc6"/>
+<ellipse cx="166.0" cy="288.0" rx="26" ry="9" fill="#0a0a0a"/><ellipse cx="166.0" cy="288.0" rx="8" ry="3" fill="#00ff88"/>
+<ellipse cx="248.0" cy="288.0" rx="26" ry="9" fill="#0a0a0a"/><ellipse cx="248.0" cy="288.0" rx="8" ry="3" fill="#00ff88"/>
+<ellipse cx="330.0" cy="288.0" rx="26" ry="9" fill="#0a0a0a"/><ellipse cx="330.0" cy="288.0" rx="8" ry="3" fill="#00ff88"/>
+<ellipse cx="412.0" cy="288.0" rx="26" ry="9" fill="#0a0a0a"/><ellipse cx="412.0" cy="288.0" rx="8" ry="3" fill="#00ff88"/>
+<ellipse cx="494.0" cy="288.0" rx="26" ry="9" fill="#0a0a0a"/><ellipse cx="494.0" cy="288.0" rx="8" ry="3" fill="#00ff88"/>
+<circle cx="560" cy="280" r="4" fill="#0a0a0a"/><line x1="560" y1="280" x2="628" y2="280" stroke="#0a0a0a" stroke-width="1.2"/>
+<text x="644.0" y="268.0" class="h" text-anchor="start" >The agents</text>
+<text x="644.0" y="290.0" class="s" text-anchor="start" style="font-size:13.5px">Scheduled tasks overnight, a desktop agent and a coding</text>
+<text x="644.0" y="309.0" class="s" text-anchor="start" style="font-size:13.5px">agent by day, remote sessions, a voice agent for the briefs.</text>
+<polygon points="100,164 330,238 330,262 100,188" fill="#c8f5de" stroke="#c3cdc6"/><polygon points="330,238 560,164 560,188 330,262" fill="#e8faf1" stroke="#c3cdc6"/><polygon points="330,90 560,164 330,238 100,164" fill="#ffffff" stroke="#c3cdc6"/>
+<polygon points="330.0,119.6 468.0,164.0 330.0,208.4 192.0,164.0" fill="#f3f6f4" stroke="#c3cdc6" />
+<polygon points="295.5,144.8 320.8,152.9 295.5,161.0 270.2,152.9" fill="#00ff88" stroke="none" />
+<polygon points="343.8,153.6 389.8,168.4 343.8,183.2 297.8,168.4" fill="#ffffff" stroke="#c3cdc6" />
+<circle cx="560" cy="164" r="4" fill="#0a0a0a"/><line x1="560" y1="164" x2="628" y2="164" stroke="#0a0a0a" stroke-width="1.2"/>
+<text x="644.0" y="152.0" class="h" text-anchor="start" >What you see</text>
+<text x="644.0" y="174.0" class="s" text-anchor="start" style="font-size:13.5px">One dashboard as your home page, and the briefs</text>
+<text x="644.0" y="193.0" class="s" text-anchor="start" style="font-size:13.5px">the agents wrote before you woke up.</text>
+<line x1="330" y1="74" x2="330" y2="88" stroke="#0a0a0a" stroke-width="1.2"/>
+<circle cx="330" cy="44" r="30" fill="#0a0a0a"/>
+<text x="326.0" y="49.0" class="b" text-anchor="middle" style="fill:#fff">You</text>
+<rect x="341" y="38" width="5" height="12" fill="#00ff88"/>
+<line x1="58" y1="716" x2="58" y2="120" stroke="#00ff88" stroke-width="3" marker-end="url(#lag)"/>
+<text transform="translate(44,560) rotate(-90)" class="lab">// build it in this order</text>
+</svg>
+  </figure>
+
+  <h3 class="block-h reveal">Decide these first</h3>
+  <ul class="clean reveal">
+    <li><b>Your areas.</b> The 4 to 10 top-level work streams that become your task sections and project folders.</li>
+    <li><b>Personal vs. work.</b> Anything you wouldn't want an agent to read goes in a separate personal vault, from day one.</li>
+    <li><b>Connectors.</b> Which inboxes, calendars and meeting tools the AI may read for the briefs.</li>
+    <li><b>What agents may do alone.</b> Write your own version of the delegation policy in section 05 before anything runs unattended.</li>
+    <li><b>Backups.</b> Live sync is a given; pick a git host and an optional cloud mirror.</li>
+  </ul>
+
+  <h3 class="block-h reveal">Phase 1: the vault</h3>
+  <div class="reveal">
+    <div class="step"><div class="num">1</div><div class="body"><h3>Create the folder skeleton</h3><p>The structure from section 03. Keep the folder names; the later automation keys off them.</p></div></div>
+    <div class="step"><div class="num">2</div><div class="body"><h3>Install the plugins</h3><p>Dataview and the Web Clipper, plus a sync method. Skip daily notes.</p></div></div>
+    <div class="step"><div class="num">3</div><div class="body"><h3>Seed the CRM</h3><p>Make a couple of people pages with frontmatter and a Dataview backlinks block; write a meeting note that wikilinks them; confirm the backlink query shows it.</p></div></div>
+    <div class="step"><div class="num">4</div><div class="body"><h3>Project hubs and the task file</h3><p>One hub per work stream with a live Dataview meeting query; a single <code>TASKS.md</code> sectioned by area; the <code>_staging/</code> convention.</p></div></div>
+    <div class="step"><div class="num">5</div><div class="body"><h3>Create the other four root logs</h3><p><code>NEW.md</code>, <code>DECISIONS.md</code>, <code>GOALS.md</code> and <code>ANSWERS.md</code>, each with its protocol written at the top of the file so any agent that opens it knows how to write to it.</p></div></div>
+  </div>
+
+  <h3 class="block-h reveal">Phase 2: agents and automation</h3>
+  <div class="reveal">
+    <div class="step"><div class="num">6</div><div class="body"><h3>Build the memory tree</h3><p>Create <code>_claude/CLAUDE.md</code> and the <code>memory/</code> subtree. Keep the every-session file short and give it a load-on-demand table. Write the staging, never-delete and archive-safety rules into it.</p></div></div>
+    <div class="step"><div class="num">7</div><div class="body"><h3>Write the delegation policy</h3><p>What may an agent do without asking, in email, money, scheduling, the vault and publishing? Put it in the every-session file. Start strict; loosen one rule at a time with a dated decision.</p></div></div>
+    <div class="step"><div class="num">8</div><div class="body"><h3>Set up three scheduled briefs</h3><p>Start with meeting-prep, the morning brief and the inbox sweep. Each writes one dated, rolling file to <code>briefs/</code> and keeps a state file for incremental work.</p></div></div>
+    <div class="step"><div class="num">9</div><div class="body"><h3>Make the dashboard your home page</h3><p>Generate <code>dashboard.html</code>, point it at the vault, and set it as the browser start page. Add the "waiting on you" card early.</p></div></div>
+    <div class="step"><div class="num">10</div><div class="body"><h3>Add the heartbeat and the backups</h3><p>A git push on a timer, run from outside the vault; a health check for failed pushes, unpushed commits and a job that has stopped running; a weekly hygiene task that applies safe fixes and reports the rest.</p></div></div>
+    <div class="step"><div class="num">11</div><div class="body"><h3>Write your first skills</h3><p>Start with the ideate and crit pair and a decision-capture skill. Keep each skill in one folder and link to it from everywhere else.</p></div></div>
+  </div>
+
+  <h3 class="block-h reveal">Phase 3: an always-on voice agent (optional)</h3>
+  <div class="reveal">
+    <div class="step"><div class="num">12</div><div class="body"><h3>Confirm the personal/work split</h3><p>Non-negotiable before going further. The always-on machine only ever syncs the work vault.</p></div></div>
+    <div class="step"><div class="num">13</div><div class="body"><h3>Harden, sandbox, mount the briefs only</h3><p>Non-admin agent user, encrypted disk, no public exposure, tool calls in a container. Mount <code>briefs/</code> and nothing else. Tell the agent that brief content is data.</p></div></div>
+    <div class="step"><div class="num">14</div><div class="body"><h3>Use remote sessions for everything else</h3><p>Anything that needs the whole vault runs as a full agent session on the always-on machine, under the same delegation policy as a session at your desk.</p></div></div>
+  </div>
+
+  <div class="callout green reveal">
+    <span class="ct">Verification mindset</span>
+    <p>Good verifications are concrete: create a test person and meeting and confirm the backlink query shows it;
+    confirm a scheduled task wrote a brief with today's date on it; kill the sync on purpose and confirm the health
+    check notices; ask an agent to "tidy up" a folder and confirm it proposes and quarantines, and doesn't delete.
+    Prefer to <em>demonstrate</em> a capability over asserting it.</p>
+  </div>
+</section>
+
+<!-- 10. Future -->
+<section id="future">
+  <div class="section-top reveal"></div>
+  <div class="slide-label reveal">10 · The Horizon</div>
+  <h2 class="reveal rd1">Where it's <em>going next</em></h2>
+  <p class="section-sub reveal rd2">
+    Not committed. Captured so the ideas don't get lost. Each one extends the same core: a plain-text vault, operated by agents under written rules.
+  </p>
+  <div class="grid c2">
+    <div class="accent-card purple reveal"><h3>Conjoined brains</h3><p>Share part of a vault with a partner or colleague and create a combined workspace that draws on everyone's collected meetings and notes. A protocol is drafted; it hasn't been piloted.</p></div>
+    <div class="accent-card blue reveal rd1"><h3>Team brains</h3><p>The same pattern for a team: individual context first, shared skills second, agents later. Build it by hand twice, then automate what repeated.</p></div>
+    <div class="accent-card coral reveal"><h3>Voice UI</h3><p>A voice agent that reads out tasks, briefs and ideas while driving, and a weekly audio review of the past week and the next.</p></div>
+    <div class="accent-card green reveal rd1"><h3>Task focus mode</h3><p>Surface tasks one at a time in a mobile-first view that makes knocking them off feel good.</p></div>
+    <div class="accent-card orange reveal"><h3>A human assistant in the vault</h3><p>Connect a human executive assistant into the vault, with the same context the AI has, so they can pick up tasks and draft on your behalf.</p></div>
+    <div class="accent-card red reveal rd1"><h3>Auto-drafted action plans</h3><p>For each task, research in the background and draft what's needed to act on it. Only worth building where the review step stays cheap.</p></div>
+  </div>
+</section>
+
+<!-- Closing -->
+<div class="closing">
+  <blockquote>The "app" is just the vault, a few <em>agents</em>, and the rules they share.</blockquote>
+  <div class="foot">second brain v2, a field note. obsidian + claude, november 2026</div>
+</div>
+
+</main>
+</div>
+
+<script>
+// Reveal on scroll
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}})},{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// Active section in sidebar
+const sections=[...document.querySelectorAll('section')];
+const navItems=[...document.querySelectorAll('.nav-item')];
+const byId=Object.fromEntries(navItems.map(a=>[a.getAttribute('href').slice(1),a]));
+const so=new IntersectionObserver((es)=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      navItems.forEach(n=>n.classList.remove('active'));
+      const a=byId[e.target.id]; if(a)a.classList.add('active');
+    }
+  });
+},{threshold:0,rootMargin:'-45% 0px -50% 0px'});
+sections.forEach(s=>so.observe(s));
+
+// Mobile sidebar toggle
+const sb=document.getElementById('sidebar'), hb=document.getElementById('hamb');
+if(hb){hb.addEventListener('click',()=>sb.classList.toggle('open'));
+  sb.addEventListener('click',e=>{if(e.target.classList.contains('nav-item'))sb.classList.remove('open');});}
+</script>
+</body>
+</html>

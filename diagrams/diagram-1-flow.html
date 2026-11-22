@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Second Brain v2, diagram option 1: In, through, out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}body{margin:0;font-family:'Inter',-apple-system,system-ui,sans-serif;color:#2c332f;background:#f3f6f4;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:34px 32px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:1.4px;color:#0a0a0a}
+.brand i{display:inline-block;width:.5em;height:.95em;background:#00ff88;margin-left:.35em;vertical-align:-.12em}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs a{font-size:13.5px;color:#5f6a64;text-decoration:none;border:1px solid #c3cdc6;background:#fff;border-radius:999px;padding:6px 14px}
+.tabs a.on{color:#0a0a0a;font-weight:600;border-color:#0a0a0a}
+.tabs a:focus-visible{outline:2px solid #0a0a0a;outline-offset:2px}
+.kick{font-family:'JetBrains Mono',monospace;font-size:13px;color:#00693e;margin:38px 0 8px}
+h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-.03em;color:#0a0a0a;line-height:1.05}
+.lede{font-family:'Source Serif 4',Georgia,serif;font-size:19px;line-height:1.6;max-width:62ch;margin:14px 0 26px}
+figure{margin:0;background:#fff;border:1px solid #dbe2dd;border-radius:16px;padding:22px;overflow-x:auto}
+svg{display:block;width:100%;height:auto;min-width:880px}
+svg text{font-family:'Inter',-apple-system,system-ui,sans-serif;fill:#2c332f}
+svg .h{font-size:18px;font-weight:700;fill:#0a0a0a;letter-spacing:-.01em}
+svg .b{font-size:14.5px;font-weight:600;fill:#0a0a0a}
+svg .b2{font-size:13px;font-weight:600;fill:#0a0a0a}
+svg .s{font-size:12.5px;fill:#5f6a64}
+svg .m{font-family:'JetBrains Mono',monospace;font-size:13px}
+svg .lab{font-family:'JetBrains Mono',monospace;font-size:12.5px;fill:#00693e}
+svg .serif{font-family:'Source Serif 4',Georgia,serif;font-size:19px;fill:#0a0a0a}
+.best{margin:20px 0 0;font-size:15px;max-width:74ch}.best b{color:#0a0a0a}</style></head><body><div class="wrap">
+<div class="top"><div class="brand">SECOND BRAIN v2<i></i></div><nav class="tabs" aria-label="Diagram options"><a href="diagram-1-flow.html" class="on" aria-current="page">1. In, through, out</a><a href="diagram-2-day.html">2. A day in the life</a><a href="diagram-3-layers.html">3. Built in layers</a><a href="diagram-4-fence.html">4. Inside the fence</a></nav></div>
+<div class="kick">// diagram option 1 of 4</div>
+<h1>In, through, out</h1>
+<p class="lede">The flow. What comes in, where it lives, what comes out, and where you sit.</p>
+<figure><svg viewBox="0 0 1200 744" role="img" aria-label="In, through, out. The flow. What comes in, where it lives, what comes out, and where you sit." xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6a64"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00ff88"/></marker>
+<marker id="ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0a0a0a"/></marker>
+</defs>
+<text x="40.0" y="70.0" class="lab" text-anchor="start" >// what comes in</text>
+<rect x="40" y="90" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="118.0" class="b" text-anchor="middle" >Meetings</text>
+<line x1="250" y1="113" x2="336" y2="113" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="40" y="154" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="182.0" class="b" text-anchor="middle" >Email</text>
+<line x1="250" y1="177" x2="336" y2="177" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="40" y="218" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="246.0" class="b" text-anchor="middle" >Calendar</text>
+<line x1="250" y1="241" x2="336" y2="241" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="40" y="282" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="310.0" class="b" text-anchor="middle" >Web clippings</text>
+<line x1="250" y1="305" x2="336" y2="305" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="40" y="346" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="374.0" class="b" text-anchor="middle" >Phone capture</text>
+<line x1="250" y1="369" x2="336" y2="369" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="40" y="410" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="145.0" y="438.0" class="b" text-anchor="middle" >Your own notes</text>
+<line x1="250" y1="433" x2="336" y2="433" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="340" y="90" width="380" height="380" rx="16" fill="#0a0a0a"/>
+<text x="368.0" y="128.0" class="m" text-anchor="start"  style="fill:#8a8a8a">// the vault: one folder, plain markdown</text>
+<text x="368.0" y="168.0" class="m" text-anchor="start"  style="fill:#00ff88">TASKS.md</text>
+<text x="510.0" y="168.0" class="m" text-anchor="start"  style="fill:#8a8a8a">commitments</text>
+<text x="368.0" y="198.0" class="m" text-anchor="start"  style="fill:#00ff88">NEW.md</text>
+<text x="510.0" y="198.0" class="m" text-anchor="start"  style="fill:#8a8a8a">activity</text>
+<text x="368.0" y="228.0" class="m" text-anchor="start"  style="fill:#00ff88">DECISIONS.md</text>
+<text x="510.0" y="228.0" class="m" text-anchor="start"  style="fill:#8a8a8a">decisions</text>
+<text x="368.0" y="258.0" class="m" text-anchor="start"  style="fill:#00ff88">GOALS.md</text>
+<text x="510.0" y="258.0" class="m" text-anchor="start"  style="fill:#8a8a8a">open loops</text>
+<text x="368.0" y="288.0" class="m" text-anchor="start"  style="fill:#00ff88">ANSWERS.md</text>
+<text x="510.0" y="288.0" class="m" text-anchor="start"  style="fill:#8a8a8a">questions for you</text>
+<line x1="368" y1="326" x2="692" y2="326" stroke="#2a2a2a"/>
+<text x="368.0" y="358.0" class="m" text-anchor="start"  xml:space="preserve" style="fill:#e8e8e8">projects/   people/   meetings/</text>
+<text x="368.0" y="388.0" class="m" text-anchor="start"  xml:space="preserve" style="fill:#e8e8e8">briefs/     emails/   notes/</text>
+<text x="368.0" y="436.0" class="m" text-anchor="start"  style="fill:#7aa2f7">_claude/</text>
+<text x="510.0" y="436.0" class="m" text-anchor="start"  style="fill:#8a8a8a">agent memory</text>
+<text x="810.0" y="70.0" class="lab" text-anchor="start" >// what comes out</text>
+<line x1="720" y1="113" x2="806" y2="113" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="810" y="90" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="118.0" class="b" text-anchor="middle" >Morning brief</text>
+<path d="M1020,113 C1050,113 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="177" x2="806" y2="177" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="810" y="154" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="182.0" class="b" text-anchor="middle" >Meeting prep</text>
+<path d="M1020,177 C1050,177 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="241" x2="806" y2="241" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="810" y="218" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="246.0" class="b" text-anchor="middle" >Inbox view</text>
+<path d="M1020,241 C1050,241 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="305" x2="806" y2="305" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="810" y="282" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="310.0" class="b" text-anchor="middle" >Night shift</text>
+<path d="M1020,305 C1050,305 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="369" x2="806" y2="369" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="810" y="346" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="374.0" class="b" text-anchor="middle" >Drafts for review</text>
+<path d="M1020,369 C1050,369 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<line x1="720" y1="433" x2="806" y2="433" stroke="#5f6a64" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="810" y="410" width="210" height="46" rx="23.0" fill="#ffffff" stroke="#c3cdc6"/><text x="915.0" y="438.0" class="b" text-anchor="middle" >Dashboard</text>
+<path d="M1020,433 C1050,433 1034,273 1058,273" fill="none" stroke="#c3cdc6" stroke-width="1.5"/>
+<path d="M1052,268 L1061,273 L1052,278 z" fill="#5f6a64"/>
+<circle cx="1112" cy="273" r="50" fill="#0a0a0a"/>
+<text x="1104.0" y="280.0" class="h" text-anchor="middle" style="fill:#fff">You</text>
+<rect x="1126" y="266" width="7" height="15" fill="#00ff88"/>
+<text x="1112.0" y="346.0" class="s" text-anchor="middle" >decide, send,</text>
+<text x="1112.0" y="364.0" class="s" text-anchor="middle" >publish</text>
+<path d="M1112,223 V54 Q1112,40 1098,40 H544 Q530,40 530,54 V82" fill="none" stroke="#00ff88" stroke-width="3" marker-end="url(#ag)"/>
+<rect x="668" y="27" width="300" height="26" fill="#fff"/>
+<text x="818.0" y="45.0" class="b" text-anchor="middle" >your decisions and answers go back in</text>
+<rect x="270" y="512" width="520" height="128" rx="14" fill="#f3f6f4" stroke="#dbe2dd"/>
+<text x="290.0" y="537.0" class="lab" text-anchor="start" >// agents read and write the same files</text>
+<line x1="400" y1="476" x2="400" y2="506" stroke="#0a0a0a" stroke-width="1.5" marker-start="url(#ai)" marker-end="url(#ai)"/>
+<line x1="530" y1="476" x2="530" y2="506" stroke="#0a0a0a" stroke-width="1.5" marker-start="url(#ai)" marker-end="url(#ai)"/>
+<line x1="660" y1="476" x2="660" y2="506" stroke="#0a0a0a" stroke-width="1.5" marker-start="url(#ai)" marker-end="url(#ai)"/>
+<rect x="279" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="338.0" y="582.0" class="b2" text-anchor="middle" >Scheduled tasks</text><text x="338.0" y="600.0" class="s" text-anchor="middle" >overnight</text>
+<rect x="407" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="466.0" y="582.0" class="b2" text-anchor="middle" >Desktop agent</text><text x="466.0" y="600.0" class="s" text-anchor="middle" >at your desk</text>
+<rect x="535" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="594.0" y="582.0" class="b2" text-anchor="middle" >Coding agent</text><text x="594.0" y="600.0" class="s" text-anchor="middle" >at your desk</text>
+<rect x="663" y="552" width="118" height="66" rx="10" fill="#ffffff" stroke="#c3cdc6"/><text x="722.0" y="582.0" class="b2" text-anchor="middle" >Voice agent</text><text x="722.0" y="600.0" class="s" text-anchor="middle" >briefs only</text>
+<rect x="40" y="676" width="1120" height="50" rx="12" fill="#fbf3df"/>
+<rect x="60" y="693" width="7" height="16" fill="#e0af68"/>
+<text x="80" y="707" class="b" style="fill:#7a5200">The rules<tspan class="s" dx="14" style="fill:#2c332f;font-size:14px">Agents draft, you decide. Nothing is sent, paid for or deleted by an agent.</tspan></text>
+</svg></figure>
+<p class="best"><b>Best for</b> the first picture on the page. It explains the whole system in one look.</p>
+</div></body></html>
