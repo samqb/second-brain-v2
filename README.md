@@ -2,8 +2,8 @@
 
 How I run my working life on one plain-markdown Obsidian vault with a set of Claude agents working across it: the vault, the scheduled automations, the rules that let several agents share it, and a three-phase guide to build your own.
 
-- Live site: https://second-brain-v2-pi.vercel.app/
-- Build your own: https://second-brain-v2-pi.vercel.app/#replicate
+- Live site: https://second-brain-v2.sambourton.ai/
+- Build your own: https://second-brain-v2.sambourton.ai/#replicate
 - Write-up: https://sambourton.ai/news/second-brain-v2/
 - v1 (June 2026): [samqb/notes-personal-agent-setup](https://github.com/samqb/notes-personal-agent-setup)
 
